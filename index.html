@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyCompiler — Analizador Léxico y Sintáctico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  :root {
+    --bg:        #0d0f14;
+    --surface:   #13161e;
+    --surface2:  #1a1f2b;
+    --border:    #252b3a;
+    --accent:    #4af0a0;
+    --accent2:   #6c8fff;
+    --accent3:   #ff6b6b;
+    --accent4:   #ffd166;
+    --text:      #e4e8f0;
+    --text-dim:  #7a8299;
+    --font-ui:   'Syne', sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 18px; letter-spacing: -0.5px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    font-size: 14px; font-weight: 700; color: #0d0f14;
+  }
+  .logo span { color: var(--accent); }
+  .header-meta { font-size: 12px; color: var(--text-dim); font-family: var(--font-code); }
+
+  /* ── LAYOUT ── */
+  .workspace {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 56px);
+  }
+
+  /* ── EDITOR PANEL ── */
+  .editor-panel {
+    grid-row: 1 / 3;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    background: var(--surface);
+  }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .panel-header .badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--accent);
+    font-family: var(--font-code);
+  }
+  .editor-wrap {
+    flex: 1; overflow: hidden; position: relative;
+  }
+  .editor-wrap .CodeMirror {
+    height: 100%;
+    font-family: var(--font-code) !important;
+    font-size: 13px;
+    line-height: 1.7;
+    background: #0d0f14 !important;
+  }
+  .editor-wrap .CodeMirror-scroll { padding-bottom: 0; }
+
+  .editor-actions {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .btn {
+    font-family: var(--font-ui);
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.5px;
+    border: none; border-radius: 6px;
+    cursor: pointer; padding: 8px 16px;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent); color: #0d0f14;
+    flex: 1;
+  }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--surface2); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--text); }
+  .btn-danger {
+    background: transparent; color: var(--accent3);
+    border: 1px solid var(--accent3);
+  }
+  .btn-danger:hover { background: var(--accent3); color: #0d0f14; }
+
+  .line-counter {
+    font-family: var(--font-code);
+    font-size: 11px; color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ── TABS ── */
+  .results-area {
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 16px;
+    gap: 2px;
+  }
+  .tab {
+    padding: 12px 16px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .tab .tab-count {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-size: 10px;
+    margin-left: 6px;
+    font-weight: 700;
+  }
+  .tab.active .tab-count { background: var(--accent); color: #0d0f14; }
+  .tab-content { display: none; flex: 1; overflow-y: auto; }
+  .tab-content.active { display: flex; flex-direction: column; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; padding: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 8px 12px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  tr:hover td { background: var(--surface2); }
+  .token-type {
+    display: inline-block;
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .tt-KEYWORD   { background: #3d2080; color: #c792ea; }
+  .tt-IDENTIFIER{ background: #1a3040; color: #82aaff; }
+  .tt-INTEGER   { background: #2b3018; color: #c3e88d; }
+  .tt-FLOAT     { background: #2b3018; color: #c3e88d; }
+  .tt-STRING    { background: #3d2a14; color: #f78c6c; }
+  .tt-OP_ARITH  { background: #1e2e3d; color: #89ddff; }
+  .tt-OP_COMP   { background: #1e2e3d; color: #89ddff; }
+  .tt-OP_ASSIGN { background: #1e2e3d; color: #89ddff; }
+  .tt-OP_BIT    { background: #1e2e3d; color: #89ddff; }
+  .tt-DELIMITER { background: #252535; color: #a0a0c0; }
+  .tt-NEWLINE   { background: #1e2e1e; color: #6a9f6a; }
+  .tt-INDENT    { background: #2a2e1a; color: #d4e88a; }
+  .tt-DEDENT    { background: #2a2e1a; color: #d4e88a; }
+  .tt-ERROR     { background: #3d1414; color: #ff6b6b; }
+  .tt-BOOL      { background: #3d2080; color: #c792ea; }
+
+  /* ── SYMBOL TABLE ── */
+  .sym-type {
+    display: inline-block; padding: 2px 7px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+  }
+  .st-variable  { background: #1a3040; color: #82aaff; }
+  .st-function  { background: #2b2040; color: #c792ea; }
+  .st-parameter { background: #1e2e1e; color: #6ac89f; }
+  .st-class     { background: #3d2a14; color: #f78c6c; }
+  .st-builtin   { background: #2b2e40; color: #aaaadd; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-item {
+    flex: 1; padding: 14px 16px;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-value {
+    font-size: 22px; font-weight: 800;
+    font-family: var(--font-code);
+    color: var(--accent);
+  }
+  .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); }
+
+  /* ── ERRORS ── */
+  .errors-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .error-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .error-item.lex { border-left: 3px solid var(--accent3); }
+  .error-item.syn { border-left: 3px solid var(--accent4); }
+  .error-item.ok  { border-left: 3px solid var(--accent); }
+  .error-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap; flex-shrink: 0;
+    font-family: var(--font-ui);
+  }
+  .badge-lex { background: #3d1414; color: var(--accent3); }
+  .badge-syn { background: #3d2e00; color: var(--accent4); }
+  .badge-ok  { background: #0d2a1a; color: var(--accent); }
+  .error-msg { font-size: 12px; color: var(--text); line-height: 1.5; font-family: var(--font-code); }
+  .error-loc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ── TREE ── */
+  #tree-container {
+    flex: 1; position: relative; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 50%, #131825 0%, #0d0f14 70%);
+  }
+  #tree-svg { width: 100%; height: 100%; }
+  .tree-node circle {
+    stroke-width: 2;
+    transition: r 0.2s, filter 0.2s;
+    cursor: pointer;
+  }
+  .tree-node circle:hover { filter: brightness(1.4); }
+  .tree-node text {
+    font-family: var(--font-code);
+    font-size: 11px;
+    pointer-events: none;
+  }
+  .tree-link { fill: none; stroke: var(--border); stroke-width: 1.5; }
+  .tree-empty {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: var(--text-dim);
+    font-size: 13px; text-align: center;
+    line-height: 2;
+    pointer-events: none;
+  }
+  .tree-controls {
+    position: absolute; top: 12px; right: 12px;
+    display: flex; gap: 6px;
+  }
+  .tree-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-dim); width: 30px; height: 30px;
+    border-radius: 6px; cursor: pointer; font-size: 14px;
+    display: grid; place-items: center;
+    transition: all 0.15s;
+  }
+  .tree-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    flex: 1; display: grid; place-items: center;
+    color: var(--text-dim); font-size: 13px;
+    text-align: center; line-height: 2.2; padding: 32px;
+  }
+  .empty-icon { font-size: 36px; display: block; margin-bottom: 8px; opacity: 0.4; }
+
+  /* ── LOADING ── */
+  .analyzing {
+    position: fixed; inset: 0;
+    background: rgba(13,15,20,0.7);
+    backdrop-filter: blur(4px);
+    display: none; place-items: center;
+    z-index: 200;
+  }
+  .analyzing.show { display: grid; }
+  .analyzing-inner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 48px;
+    text-align: center;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* ── LINE HIGHLIGHT ── */
+  .CodeMirror-line-error { background: rgba(255,107,107,0.12) !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">Py</div>
+    Py<span>Compiler</span>
+  </div>
+  <span class="header-meta">Analizador Léxico &amp; Sintáctico · Python 3 · LL(1)</span>
+</header>
+
+<div class="workspace">
+
+  <!-- ══ EDITOR PANEL ══ -->
+  <div class="editor-panel">
+    <div class="panel-header">
+      <span>Editor de Código</span>
+      <span class="badge" id="line-badge">0 líneas</span>
+    </div>
+    <div class="editor-wrap">
+      <textarea id="editor"></textarea>
+    </div>
+    <div class="editor-actions">
+      <button class="btn btn-primary" onclick="runAnalysis()">▶ Analizar</button>
+      <button class="btn btn-secondary" onclick="loadExample()">Ejemplo</button>
+      <label class="btn btn-secondary" style="cursor:pointer">
+        Cargar .py <input type="file" accept=".py,.txt" style="display:none" onchange="loadFile(event)">
+      </label>
+      <button class="btn btn-danger" onclick="clearEditor()">✕</button>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS AREA ══ -->
+  <div class="results-area">
+
+    <!-- stats bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-value" id="stat-tokens">0</div>
+        <div class="stat-label">Tokens</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-lines">0</div>
+        <div class="stat-label">Líneas lógicas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-symbols">0</div>
+        <div class="stat-label">Identificadores</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-errors" style="color:var(--accent3)">0</div>
+        <div class="stat-label">Errores</div>
+      </div>
+    </div>
+
+    <!-- tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tokens')">Tokens <span class="tab-count" id="cnt-tokens">0</span></div>
+      <div class="tab" onclick="switchTab('symbols')">Símbolos <span class="tab-count" id="cnt-symbols">0</span></div>
+      <div class="tab" onclick="switchTab('errors')">Errores <span class="tab-count" id="cnt-errors">0</span></div>
+      <div class="tab" onclick="switchTab('tree')">Árbol Sintáctico</div>
+    </div>
+
+    <!-- tokens tab -->
+    <div class="tab-content active" id="tab-tokens">
+      <div class="table-wrap">
+        <table id="token-table">
+          <thead><tr><th>#</th><th>Tipo</th><th>Lexema</th><th>Línea</th><th>Col.</th><th>Categoría</th></tr></thead>
+          <tbody id="token-body">
+            <tr><td colspan="6"><div class="empty-state"><span class="empty-icon">⬡</span>Presiona "Analizar" para<br>generar la tabla de tokens</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- symbols tab -->
+    <div class="tab-content" id="tab-symbols">
+      <div class="table-wrap">
+        <table id="symbol-table">
+          <thead><tr><th>Identificador</th><th>Tipo</th><th>Definido en</th><th>Referencias</th><th>Ámbito</th></tr></thead>
+          <tbody id="symbol-body">
+            <tr><td colspan="5"><div class="empty-state"><span class="empty-icon">⬡</span>La tabla de símbolos<br>aparecerá aquí</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- errors tab -->
+    <div class="tab-content" id="tab-errors">
+      <div class="errors-list" id="errors-list">
+        <div class="empty-state"><span class="empty-icon">✓</span>Sin errores detectados</div>
+      </div>
+    </div>
+
+    <!-- tree tab -->
+    <div class="tab-content" id="tab-tree" style="position:relative">
+      <div id="tree-container">
+        <svg id="tree-svg"></svg>
+        <div class="tree-empty" id="tree-empty">
+          <div><span style="font-size:40px;display:block;margin-bottom:12px;opacity:.3">⊞</span>El árbol sintáctico<br>se generará aquí</div>
+        </div>
+        <div class="tree-controls">
+          <button class="tree-btn" onclick="zoomTree(1.2)" title="Zoom +">+</button>
+          <button class="tree-btn" onclick="zoomTree(0.8)" title="Zoom -">−</button>
+          <button class="tree-btn" onclick="resetZoom()" title="Reset">⊡</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- loading overlay -->
+<div class="analyzing" id="loading-overlay">
+  <div class="analyzing-inner">
+    <div class="spinner"></div>
+    <div style="font-weight:700;font-size:14px">Analizando código...</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-top:4px" id="loading-phase">Fase léxica</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// CODEMIRROR SETUP
+// ══════════════════════════════════════════════════════════════════════
+const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
+  mode: 'python',
+  theme: 'dracula',
+  lineNumbers: true,
+  matchBrackets: true,
+  indentUnit: 4,
+  tabSize: 4,
+  lineWrapping: false,
+  autofocus: true,
+});
+
+cm.on('change', () => {
+  const lines = cm.lineCount();
+  document.getElementById('line-badge').textContent = `${lines} línea${lines !== 1 ? 's' : ''}`;
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// LÉXICO — DEFINICIONES
+// ══════════════════════════════════════════════════════════════════════
+const KEYWORDS = new Set([
+  'False','None','True','and','as','assert','async','await','break',
+  'class','continue','def','del','elif','else','except','finally',
+  'for','from','global','if','import','in','is','lambda','nonlocal',
+  'not','or','pass','raise','return','try','while','with','yield'
+]);
+
+const BUILTINS = new Set([
+  'print','len','range','input','int','float','str','bool','list',
+  'dict','set','tuple','type','isinstance','hasattr','getattr','setattr',
+  'abs','max','min','sum','sorted','reversed','enumerate','zip','map',
+  'filter','open','super','object','Exception'
+]);
+
+const TOKEN_CATEGORIES = {
+  KEYWORD:'Palabra reservada', IDENTIFIER:'Identificador',
+  INTEGER:'Literal entero', FLOAT:'Literal flotante',
+  STRING:'Literal cadena', OP_ARITH:'Operador aritmético',
+  OP_COMP:'Operador comparación', OP_ASSIGN:'Operador asignación',
+  OP_BIT:'Operador bit a bit', DELIMITER:'Delimitador',
+  INDENT:'Inicio bloque', DEDENT:'Cierre bloque',
+  NEWLINE:'Fin de línea lógica', BOOL:'Literal booleano',
+  NONE_LIT:'Literal None', ERROR:'Error léxico'
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// ANALIZADOR LÉXICO
+// ══════════════════════════════════════════════════════════════════════
+function tokenize(src) {
+  const tokens = [];
+  const errors = [];
+  const lines  = src.split('\n');
+  const indentStack = [0];
+
+  // track logical lines (non-blank, non-comment)
+  let logicalLines = 0;
+
+  for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+    const rawLine = lines[lineNum];
+    const physLine = lineNum + 1;
+
+    // Detect indentation
+    const indent = rawLine.match(/^[ \t]*/)[0].length;
+    const stripped = rawLine.trimStart();
+
+    // Skip blank lines and comment-only lines (they're not logical lines)
+    if (stripped === '' || stripped.startsWith('#')) continue;
+    logicalLines++;
+
+    const curIndent = indentStack[indentStack.length - 1];
+    if (indent > curIndent) {
+      indentStack.push(indent);
+      tokens.push({ type:'INDENT', value:`(+${indent})`, line: physLine, col: 1 });
+    } else {
+      while (indent < indentStack[indentStack.length - 1]) {
+        indentStack.pop();
+        tokens.push({ type:'DEDENT', value:`(-${indentStack[indentStack.length-1]})`, line: physLine, col: 1 });
+      }
+      if (indent !== indentStack[indentStack.length - 1]) {
+        errors.push({ type:'lex', msg:`Indentación inconsistente: ${indent} espacios no coincide con ningún nivel previo.`, line: physLine, col: 1 });
+      }
+    }
+
+    // Scan the line character by character
+    let i = 0;
+    const line = rawLine;
+
+    while (i < line.length) {
+      const ch = line[i];
+
+      // Skip whitespace (after indentation processing)
+      if (ch === ' ' || ch === '\t') { i++; continue; }
+
+      // Comment — rest of line
+      if (ch === '#') break;
+
+      const col = i + 1;
+
+      // ── String literals ──
+      if (ch === '"' || ch === "'" ||
+          ((ch==='r'||ch==='b'||ch==='f'||ch==='u'||ch==='R'||ch==='B'||ch==='F') &&
+           (line[i+1]==='"'||line[i+1]==="'"))) {
+        let prefix = '';
+        if (line[i+1]==='"'||line[i+1]==="'"||line[i+1]==='r'||line[i+1]==='b'||line[i+1]==='f') {
+          if (!'"\'' .includes(ch)) { prefix = ch; i++; }
+        }
+        const q = line[i];
+        // Triple?
+        if (line.slice(i,i+3)===q+q+q) {
+          let j = i+3;
+          while (j < line.length - 2 && !(line[j]===q&&line[j+1]===q&&line[j+2]===q)) j++;
+          const val = prefix + line.slice(i, j+3);
+          tokens.push({ type:'STRING', value: val, line: physLine, col });
+          i = j+3;
+        } else {
+          let j = i+1;
+          while (j < line.length && line[j] !== q && line[j] !== '\n') {
+            if (line[j] === '\\') j++;
+            j++;
+          }
+          const val = prefix + line.slice(i, j+1);
+          tokens.push({ type:'STRING', value: val, line: physLine, col });
+          i = j+1;
+        }
+        continue;
+      }
+
+      // ── Numbers ──
+      if (/[0-9]/.test(ch) || (ch==='.' && /[0-9]/.test(line[i+1]||''))) {
+        let j = i;
+        let isFloat = false;
+        if (ch==='0' && /[xXoObB]/.test(line[i+1]||'')) {
+          j += 2;
+          while (j < line.length && /[0-9a-fA-F_]/.test(line[j])) j++;
+          tokens.push({ type:'INTEGER', value: line.slice(i,j), line: physLine, col });
+          i = j; continue;
+        }
+        while (j < line.length && /[0-9_]/.test(line[j])) j++;
+        if (line[j]==='.' && line[j+1]!=='.') { isFloat=true; j++; while (j < line.length && /[0-9_]/.test(line[j])) j++; }
+        if (line[j]==='e'||line[j]==='E') { isFloat=true; j++; if (line[j]==='+'||line[j]==='-') j++; while (j<line.length&&/[0-9]/.test(line[j])) j++; }
+        if (!isFloat && ch==='.') isFloat=true;
+        tokens.push({ type: isFloat?'FLOAT':'INTEGER', value: line.slice(i,j), line: physLine, col });
+        i = j; continue;
+      }
+
+      // ── Identifiers / Keywords ──
+      if (/[a-zA-Z_]/.test(ch)) {
+        let j = i;
+        while (j < line.length && /[a-zA-Z0-9_]/.test(line[j])) j++;
+        const word = line.slice(i, j);
+        // KEYWORD has priority over IDENTIFIER (rule: first-match)
+        if (KEYWORDS.has(word)) {
+          // True/False/None get special sub-types for display but remain KEYWORD
+          tokens.push({ type:'KEYWORD', value: word, line: physLine, col });
+        } else {
+          tokens.push({ type:'IDENTIFIER', value: word, line: physLine, col });
+        }
+        i = j; continue;
+      }
+
+      // ── Operators (maximal munch) ──
+      const rest = line.slice(i);
+
+      // Multi-char first (maximal munch)
+      if (rest.startsWith('**=')) { tokens.push({type:'OP_ASSIGN',value:'**=',line:physLine,col}); i+=3; continue; }
+      if (rest.startsWith('//=')) { tokens.push({type:'OP_ASSIGN',value:'//=',line:physLine,col}); i+=3; continue; }
+      if (rest.startsWith('>>=')) { tokens.push({type:'OP_ASSIGN',value:'>>=',line:physLine,col}); i+=3; continue; }
+      if (rest.startsWith('<<=')) { tokens.push({type:'OP_ASSIGN',value:'<<=',line:physLine,col}); i+=3; continue; }
+      if (rest.startsWith('**'))  { tokens.push({type:'OP_ARITH', value:'**', line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('//'))  { tokens.push({type:'OP_ARITH', value:'//', line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('->'))  { tokens.push({type:'DELIMITER',value:'->',line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('...')) { tokens.push({type:'DELIMITER',value:'...',line:physLine,col}); i+=3; continue; }
+      if (rest.startsWith('=='))  { tokens.push({type:'OP_COMP',  value:'==',line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('!='))  { tokens.push({type:'OP_COMP',  value:'!=',line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('<='))  { tokens.push({type:'OP_COMP',  value:'<=',line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('>='))  { tokens.push({type:'OP_COMP',  value:'>=',line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('<<'))  { tokens.push({type:'OP_BIT',   value:'<<',line:physLine,col}); i+=2; continue; }
+      if (rest.startsWith('>>'))  { tokens.push({type:'OP_BIT',   value:'>>',line:physLine,col}); i+=2; continue; }
+      if ('+='.includes(ch)&&line[i+1]==='=') { tokens.push({type:'OP_ASSIGN',value:ch+'=',line:physLine,col}); i+=2; continue; }
+      if ('-=*=%=&=|=^='.includes(ch+'=')&&line[i+1]==='=') { tokens.push({type:'OP_ASSIGN',value:ch+'=',line:physLine,col}); i+=2; continue; }
+
+      // Single char
+      if ('+-*/%@'.includes(ch)) { tokens.push({type:'OP_ARITH', value:ch,line:physLine,col}); i++; continue; }
+      if ('<>'.includes(ch))     { tokens.push({type:'OP_COMP',  value:ch,line:physLine,col}); i++; continue; }
+      if (ch==='=')              { tokens.push({type:'OP_ASSIGN',value:'=',line:physLine,col}); i++; continue; }
+      if ('&|^~'.includes(ch))  { tokens.push({type:'OP_BIT',   value:ch,line:physLine,col}); i++; continue; }
+      if ('()[]{},;:.@'.includes(ch)) { tokens.push({type:'DELIMITER',value:ch,line:physLine,col}); i++; continue; }
+
+      // ! alone — ERROR (not valid in Python without =)
+      if (ch === '!') {
+        errors.push({ type:'lex', msg:`Carácter '!' inválido aislado. En Python la negación es 'not'; '!=' es el único uso válido.`, line: physLine, col });
+        tokens.push({ type:'ERROR', value:'!', line: physLine, col });
+        i++; continue;
+      }
+
+      // Unknown character
+      errors.push({ type:'lex', msg:`Carácter no reconocido '${ch}' (código ASCII ${ch.charCodeAt(0)}). No pertenece al alfabeto de Python.`, line: physLine, col });
+      tokens.push({ type:'ERROR', value: ch, line: physLine, col });
+      i++;
+    }
+
+    // End of logical line
+    tokens.push({ type:'NEWLINE', value:'\\n', line: physLine, col: line.length+1 });
+  }
+
+  // Flush remaining DEDENT
+  while (indentStack.length > 1) {
+    indentStack.pop();
+    tokens.push({ type:'DEDENT', value:`(-${indentStack[indentStack.length-1]})`, line: lines.length, col: 1 });
+  }
+
+  return { tokens, errors, logicalLines };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TABLA DE SÍMBOLOS
+// ══════════════════════════════════════════════════════════════════════
+function buildSymbolTable(tokens) {
+  const table = new Map();
+  const scopeStack = ['global'];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t.type !== 'IDENTIFIER') continue;
+    const prev = tokens[i-1];
+    const next = tokens[i+1];
+
+    let kind = 'variable';
+    let scope = scopeStack[scopeStack.length-1];
+
+    if (prev && prev.type === 'KEYWORD' && prev.value === 'def')   kind = 'function';
+    if (prev && prev.type === 'KEYWORD' && prev.value === 'class') kind = 'class';
+    if (prev && prev.type === 'KEYWORD' && (prev.value === 'for' || prev.value === 'as')) kind = 'variable';
+    if (next && next.type === 'DELIMITER' && next.value === '(' && tokens[i-1]?.value !== 'def') {
+      // it's a call — don't overwrite kind if already defined
+    }
+    // Parameters: after ( following def
+    const prevPrev = tokens[i-2];
+    if (prevPrev && prevPrev.type === 'KEYWORD' && prevPrev.value === 'def') kind = 'parameter'; // this is func name
+    if (prev && (prev.value === '(' || prev.value === ',') &&
+        tokens.slice(0, i).reverse().some(t => t.type==='KEYWORD' && t.value==='def')) {
+      // check if inside a def params list
+      let parenDepth = 0;
+      for (let j = i-1; j >= 0; j--) {
+        if (tokens[j].value === ')') parenDepth++;
+        if (tokens[j].value === '(') {
+          if (parenDepth === 0 && tokens[j-1]?.type === 'IDENTIFIER') { kind = 'parameter'; break; }
+          parenDepth--;
+        }
+        if (tokens[j].type === 'NEWLINE' && parenDepth === 0) break;
+      }
+    }
+
+    if (BUILTINS.has(t.value)) kind = 'builtin';
+
+    if (!table.has(t.value)) {
+      table.set(t.value, { name: t.value, kind, definedAt: t.line, refs: [t.line], scope });
+    } else {
+      const entry = table.get(t.value);
+      if (!entry.refs.includes(t.line)) entry.refs.push(t.line);
+    }
+  }
+  return table;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ANALIZADOR SINTÁCTICO — Descendente Recursivo Predictivo
+// ══════════════════════════════════════════════════════════════════════
+let parseTokens = [], parsePos = 0, parseErrors = [];
+
+function peek(offset=0) {
+  let p = parsePos + offset;
+  // skip NEWLINE, INDENT, DEDENT for simplified LL1
+  while (p < parseTokens.length &&
+         ['NEWLINE','INDENT','DEDENT'].includes(parseTokens[p]?.type)) p++;
+  return parseTokens[p] || { type:'EOF', value:'$', line:0, col:0 };
+}
+
+function consume(expectedType=null, expectedValue=null) {
+  while (parsePos < parseTokens.length &&
+         ['NEWLINE','INDENT','DEDENT'].includes(parseTokens[parsePos]?.type)) parsePos++;
+  const t = parseTokens[parsePos];
+  if (!t || t.type==='EOF') {
+    parseErrors.push({ type:'syn', msg:`Se esperaba ${expectedValue||expectedType||'token'} pero se llegó al fin del programa.`, line: (parseTokens[parsePos-1]?.line||1) });
+    return { type:'EOF', value:'$', line:0 };
+  }
+  if (expectedType && t.type !== expectedType && !(expectedValue && t.value === expectedValue)) {
+    parseErrors.push({ type:'syn', msg:`Línea ${t.line}, Col ${t.col}: Se esperaba ${expectedValue||expectedType} pero se encontró '${t.value}' (${t.type}).`, line: t.line });
+  }
+  parsePos++;
+  return t;
+}
+
+function parseProgram() {
+  const node = { label:'programa', children:[] };
+  while (peek().type !== 'EOF') {
+    try { node.children.push(parseStatement()); }
+    catch(e) { parsePos++; if(parsePos > parseTokens.length) break; }
+  }
+  return node;
+}
+
+function parseStatement() {
+  const t = peek();
+  if (t.type === 'KEYWORD') {
+    if (t.value === 'def')   return parseDef();
+    if (t.value === 'class') return parseClass();
+    if (t.value === 'if')    return parseIf();
+    if (t.value === 'while') return parseWhile();
+    if (t.value === 'for')   return parseFor();
+    if (t.value === 'return') return parseReturn();
+    if (t.value === 'import' || t.value === 'from') return parseImport();
+    if (t.value === 'pass' || t.value === 'break' || t.value === 'continue') {
+      const kw = consume('KEYWORD');
+      return { label: kw.value, children:[] };
+    }
+  }
+  return parseSimpleStatement();
+}
+
+function parseDef() {
+  const node = { label:'def_stmt', children:[] };
+  node.children.push({ label: consume('KEYWORD','def').value, children:[] });
+  node.children.push({ label: consume('IDENTIFIER').value, children:[] });
+  node.children.push({ label: consume('DELIMITER','(').value, children:[] });
+  const params = parseParams();
+  if (params.children.length) node.children.push(params);
+  node.children.push({ label: consume('DELIMITER',')').value, children:[] });
+  // optional ->
+  if (peek().value === '->') { consume(); node.children.push({ label:'->', children:[] }); parseExpression(); }
+  node.children.push({ label: consume('DELIMITER',':').value, children:[] });
+  node.children.push(parseBlock());
+  return node;
+}
+
+function parseClass() {
+  const node = { label:'class_stmt', children:[] };
+  node.children.push({ label: consume('KEYWORD','class').value, children:[] });
+  node.children.push({ label: consume('IDENTIFIER').value, children:[] });
+  if (peek().value === '(') { consume(); parseExprList(); consume('DELIMITER',')'); }
+  node.children.push({ label: consume('DELIMITER',':').value, children:[] });
+  node.children.push(parseBlock());
+  return node;
+}
+
+function parseIf() {
+  const node = { label:'if_stmt', children:[] };
+  node.children.push({ label: consume('KEYWORD','if').value, children:[] });
+  node.children.push(parseExpression());
+  node.children.push({ label: consume('DELIMITER',':').value, children:[] });
+  node.children.push(parseBlock());
+  while (peek().value === 'elif') {
+    const elif = { label:'elif', children:[] };
+    consume('KEYWORD','elif');
+    elif.children.push(parseExpression());
+    consume('DELIMITER',':');
+    elif.children.push(parseBlock());
+    node.children.push(elif);
+  }
+  if (peek().value === 'else') {
+    consume('KEYWORD','else');
+    consume('DELIMITER',':');
+    node.children.push({ label:'else', children:[parseBlock()] });
+  }
+  return node;
+}
+
+function parseWhile() {
+  const node = { label:'while_stmt', children:[] };
+  node.children.push({ label: consume('KEYWORD','while').value, children:[] });
+  node.children.push(parseExpression());
+  node.children.push({ label: consume('DELIMITER',':').value, children:[] });
+  node.children.push(parseBlock());
+  return node;
+}
+
+function parseFor() {
+  const node = { label:'for_stmt', children:[] };
+  node.children.push({ label: consume('KEYWORD','for').value, children:[] });
+  node.children.push({ label: consume('IDENTIFIER').value, children:[] });
+  node.children.push({ label: consume('KEYWORD','in').value, children:[] });
+  node.children.push(parseExpression());
+  node.children.push({ label: consume('DELIMITER',':').value, children:[] });
+  node.children.push(parseBlock());
+  return node;
+}
+
+function parseReturn() {
+  const node = { label:'return_stmt', children:[] };
+  node.children.push({ label: consume('KEYWORD','return').value, children:[] });
+  const t = peek();
+  if (t.type !== 'EOF' && t.type !== 'KEYWORD' && t.value !== ':') {
+    try { node.children.push(parseExpression()); } catch(e) {}
+  }
+  return node;
+}
+
+function parseImport() {
+  const node = { label:'import_stmt', children:[] };
+  const kw = consume('KEYWORD');
+  node.children.push({ label: kw.value, children:[] });
+  while (peek().type === 'IDENTIFIER' || peek().value === '*') {
+    node.children.push({ label: peek().value, children:[] });
+    consume();
+    if (peek().value !== ',') break;
+    consume(); // comma
+  }
+  return node;
+}
+
+function parseBlock() {
+  const node = { label:'bloque', children:[] };
+  // Consume tokens until we've got at least one statement
+  let depth = 0;
+  let started = false;
+  while (parsePos < parseTokens.length) {
+    const t = parseTokens[parsePos];
+    if (!t) break;
+    if (t.type === 'INDENT') { depth++; parsePos++; started = true; continue; }
+    if (t.type === 'DEDENT') { if (depth > 0) { depth--; parsePos++; } else break; if (depth === 0 && started) break; continue; }
+    if (t.type === 'NEWLINE') { parsePos++; continue; }
+    if (t.type === 'EOF') break;
+    if (!started && depth === 0) {
+      // inline block
+      try { node.children.push(parseStatement()); } catch(e) { parsePos++; }
+      break;
+    }
+    try { node.children.push(parseStatement()); } catch(e) { parsePos++; }
+  }
+  return node;
+}
+
+function parseSimpleStatement() {
+  const node = { label:'simple_stmt', children:[] };
+  const left = parsePrimary();
+  const op = peek();
+  if (op.type === 'OP_ASSIGN') {
+    const asn = { label:'asignacion', children:[] };
+    asn.children.push(left);
+    asn.children.push({ label: consume('OP_ASSIGN').value, children:[] });
+    asn.children.push(parseExpression());
+    return asn;
+  }
+  // expression statement
+  node.children.push(left);
+  return node;
+}
+
+function parseParams() {
+  const node = { label:'params', children:[] };
+  while (peek().value !== ')' && peek().type !== 'EOF') {
+    if (peek().value === '*' || peek().value === '**') {
+      node.children.push({ label: consume('OP_ARITH').value, children:[] });
+    }
+    if (peek().type === 'IDENTIFIER') node.children.push({ label: consume('IDENTIFIER').value, children:[] });
+    if (peek().value === ':') { consume(); parseExpression(); }
+    if (peek().value === '=') { consume(); parseExpression(); }
+    if (peek().value === ',') consume(); else break;
+  }
+  return node;
+}
+
+function parseExpression() { return parseExprOr(); }
+
+function parseExprOr() {
+  let left = parseExprAnd();
+  while (peek().value === 'or') {
+    const node = { label:'expr_or', children:[left] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprAnd());
+    left = node;
+  }
+  return left;
+}
+
+function parseExprAnd() {
+  let left = parseExprNot();
+  while (peek().value === 'and') {
+    const node = { label:'expr_and', children:[left] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprNot());
+    left = node;
+  }
+  return left;
+}
+
+function parseExprNot() {
+  if (peek().value === 'not') {
+    const node = { label:'expr_not', children:[] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprNot());
+    return node;
+  }
+  return parseExprComp();
+}
+
+function parseExprComp() {
+  let left = parseExprAdd();
+  const ops = ['==','!=','<','>','<=','>=','in','is'];
+  while (ops.includes(peek().value)) {
+    const node = { label:'expr_comp', children:[left] };
+    node.children.push({ label: consume().value, children:[] });
+    // "not in" and "is not"
+    if (['not','is'].includes(peek().value) && (peek(0).value === 'not' || peek(0).value === 'is')) {
+      if (peek().value === 'not') node.children[node.children.length-1].label += ' not';
+    }
+    node.children.push(parseExprAdd());
+    left = node;
+  }
+  return left;
+}
+
+function parseExprAdd() {
+  let left = parseExprMul();
+  while (['+','-'].includes(peek().value)) {
+    const node = { label:'expr_add', children:[left] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprMul());
+    left = node;
+  }
+  return left;
+}
+
+function parseExprMul() {
+  let left = parseExprPow();
+  while (['*','/','//','%'].includes(peek().value)) {
+    const node = { label:'expr_mul', children:[left] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprPow());
+    left = node;
+  }
+  return left;
+}
+
+function parseExprPow() {
+  let left = parseExprUnary();
+  if (peek().value === '**') {
+    const node = { label:'expr_pot', children:[left] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprUnary());
+    return node;
+  }
+  return left;
+}
+
+function parseExprUnary() {
+  if (['+','-','~'].includes(peek().value)) {
+    const node = { label:'expr_unaria', children:[] };
+    node.children.push({ label: consume().value, children:[] });
+    node.children.push(parseExprUnary());
+    return node;
+  }
+  return parsePrimary();
+}
+
+function parsePrimary() {
+  const t = peek();
+  if (t.type === 'EOF') return { label:'ε', children:[] };
+
+  let node;
+  if (t.type === 'INTEGER') { consume(); node = { label:`INT(${t.value})`, children:[] }; }
+  else if (t.type === 'FLOAT') { consume(); node = { label:`FLOAT(${t.value})`, children:[] }; }
+  else if (t.type === 'STRING') { consume(); node = { label:`STR(${t.value.slice(0,12)}${t.value.length>12?'…':''})`, children:[] }; }
+  else if (t.type === 'IDENTIFIER') { consume(); node = { label:`ID(${t.value})`, children:[] }; }
+  else if (t.type === 'KEYWORD' && ['True','False','None'].includes(t.value)) { consume(); node = { label:t.value, children:[] }; }
+  else if (t.value === '(') {
+    consume('DELIMITER','(');
+    node = { label:'grupo', children:[parseExpression()] };
+    consume('DELIMITER',')');
+  }
+  else if (t.value === '[') {
+    consume('DELIMITER','[');
+    node = { label:'lista', children:[] };
+    parseExprList();
+    consume('DELIMITER',']');
+  }
+  else if (t.value === '{') {
+    consume('DELIMITER','{');
+    node = { label:'dict/set', children:[] };
+    parseExprList();
+    consume('DELIMITER','}');
+  }
+  else {
+    consume();
+    node = { label: t.value || '?', children:[] };
+  }
+
+  // Postfix: calls and subscripts
+  while (true) {
+    const p = peek();
+    if (p.value === '(') {
+      consume('DELIMITER','(');
+      const call = { label:'llamada()', children:[node] };
+      const args = parseExprList();
+      if (args.children.length) call.children.push(args);
+      consume('DELIMITER',')');
+      node = call;
+    } else if (p.value === '[') {
+      consume('DELIMITER','[');
+      const sub = { label:'suscript[]', children:[node, parseExpression()] };
+      consume('DELIMITER',']');
+      node = sub;
+    } else if (p.value === '.') {
+      consume('DELIMITER','.');
+      const attr = { label:'.'+peek().value, children:[node] };
+      if (peek().type === 'IDENTIFIER') consume();
+      node = attr;
+    } else break;
+  }
+  return node;
+}
+
+function parseExprList() {
+  const node = { label:'args', children:[] };
+  if (peek().value === ')' || peek().value === ']' || peek().value === '}') return node;
+  try {
+    node.children.push(parseExpression());
+    while (peek().value === ',') {
+      consume();
+      if (peek().value === ')' || peek().value === ']' || peek().value === '}') break;
+      node.children.push(parseExpression());
+    }
+  } catch(e) {}
+  return node;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// D3 TREE RENDERER
+// ══════════════════════════════════════════════════════════════════════
+let treeZoom = null;
+let treeZoomBehavior = null;
+
+function renderTree(root) {
+  const container = document.getElementById('tree-container');
+  const svg = d3.select('#tree-svg');
+  svg.selectAll('*').remove();
+  document.getElementById('tree-empty').style.display = 'none';
+
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  const g = svg.append('g').attr('class','tree-root');
+
+  treeZoomBehavior = d3.zoom()
+    .scaleExtent([0.1, 3])
+    .on('zoom', (e) => { g.attr('transform', e.transform); treeZoom = e.transform; });
+  svg.call(treeZoomBehavior);
+
+  const hierarchy = d3.hierarchy(root, d => d.children && d.children.length ? d.children : null);
+  const treeLayout = d3.tree().nodeSize([120, 60]);
+  treeLayout(hierarchy);
+
+  // Links
+  g.selectAll('.tree-link')
+    .data(hierarchy.links())
+    .enter().append('path')
+    .attr('class','tree-link')
+    .attr('d', d3.linkVertical()
+      .x(d => d.x)
+      .y(d => d.y));
+
+  // Nodes
+  const node = g.selectAll('.tree-node')
+    .data(hierarchy.descendants())
+    .enter().append('g')
+    .attr('class','tree-node')
+    .attr('transform', d => `translate(${d.x},${d.y})`)
+    .style('cursor','pointer')
+    .on('click', (e, d) => {
+      d._collapsed = !d._collapsed;
+      if (d._collapsed) { d._children = d.children; d.children = null; }
+      else { d.children = d._children; d._children = null; }
+      renderTree(root);
+    });
+
+  // Color by type
+  const colorOf = (label) => {
+    if (!label) return '#4af0a0';
+    if (/^(programa|bloque|sentencia|def_stmt|if_stmt|while_stmt|for_stmt|class_stmt|return_stmt|import_stmt|asignacion|simple_stmt|expr_|llamada|params|args|grupo|lista|dict)/.test(label)) return '#6c8fff';
+    if (/^(if|def|for|while|else|elif|return|class|in|not|and|or|pass|break|continue|import|from|True|False|None)$/.test(label)) return '#c792ea';
+    if (/^INT\(/.test(label)) return '#c3e88d';
+    if (/^FLOAT\(/.test(label)) return '#c3e88d';
+    if (/^STR\(/.test(label)) return '#f78c6c';
+    if (/^ID\(/.test(label)) return '#82aaff';
+    return '#4af0a0';
+  };
+
+  const isLeaf = d => !d.children || d.children.length === 0;
+
+  node.append('circle')
+    .attr('r', d => isLeaf(d) ? 8 : 12)
+    .attr('fill', d => colorOf(d.data.label))
+    .attr('fill-opacity', d => isLeaf(d) ? 0.85 : 0.25)
+    .attr('stroke', d => colorOf(d.data.label))
+    .attr('stroke-width', 2);
+
+  node.append('text')
+    .attr('dy', d => isLeaf(d) ? 22 : 28)
+    .attr('text-anchor','middle')
+    .attr('fill', d => colorOf(d.data.label))
+    .attr('font-size', d => isLeaf(d) ? '10px' : '11px')
+    .attr('font-weight', d => isLeaf(d) ? '400' : '700')
+    .text(d => d.data.label);
+
+  // Auto-center
+  const bounds = g.node().getBBox();
+  const tx = W/2 - (bounds.x + bounds.width/2);
+  const ty = 60;
+  svg.call(treeZoomBehavior.transform,
+    d3.zoomIdentity.translate(tx, ty));
+}
+
+function zoomTree(factor) {
+  const svg = d3.select('#tree-svg');
+  svg.transition().duration(250).call(treeZoomBehavior.scaleBy, factor);
+}
+
+function resetZoom() {
+  const svg = d3.select('#tree-svg');
+  const g   = svg.select('.tree-root');
+  if (!g.node()) return;
+  const W = document.getElementById('tree-container').clientWidth;
+  const bounds = g.node().getBBox();
+  svg.transition().duration(300).call(treeZoomBehavior.transform,
+    d3.zoomIdentity.translate(W/2 - (bounds.x + bounds.width/2), 60));
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// UI RENDERING
+// ══════════════════════════════════════════════════════════════════════
+function renderTokenTable(tokens) {
+  const tbody = document.getElementById('token-body');
+  if (!tokens.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="empty-icon">⬡</span>Sin tokens</div></td></tr>'; return; }
+  tbody.innerHTML = tokens.map((t,i) => `
+    <tr>
+      <td style="color:var(--text-dim)">${i+1}</td>
+      <td><span class="token-type tt-${t.type}">${t.type}</span></td>
+      <td style="color:var(--accent4)">${escHtml(t.value)}</td>
+      <td style="color:var(--text-dim);text-align:center">${t.line}</td>
+      <td style="color:var(--text-dim);text-align:center">${t.col}</td>
+      <td style="color:var(--text-dim)">${TOKEN_CATEGORIES[t.type]||t.type}</td>
+    </tr>`).join('');
+}
+
+function renderSymbolTable(symMap) {
+  const tbody = document.getElementById('symbol-body');
+  const entries = [...symMap.values()];
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><span class="empty-icon">⬡</span>Sin identificadores</div></td></tr>'; return; }
+  tbody.innerHTML = entries.map(s => `
+    <tr>
+      <td style="color:var(--accent4);font-weight:700">${escHtml(s.name)}</td>
+      <td><span class="sym-type st-${s.kind}">${s.kind}</span></td>
+      <td style="color:var(--text-dim);text-align:center">Línea ${s.definedAt}</td>
+      <td style="color:var(--text-dim);text-align:center">${s.refs.join(', ')}</td>
+      <td style="color:var(--text-dim)">${s.scope}</td>
+    </tr>`).join('');
+}
+
+function renderErrors(lexErrors, synErrors) {
+  const container = document.getElementById('errors-list');
+  const allErrors = [...lexErrors, ...synErrors];
+
+  // Clear error highlights
+  for (let i = 0; i < cm.lineCount(); i++)
+    cm.removeLineClass(i, 'background', 'CodeMirror-line-error');
+
+  if (!allErrors.length) {
+    container.innerHTML = `<div class="error-item ok"><span class="error-badge badge-ok">✓ OK</span><div><div class="error-msg">Análisis completado sin errores.</div><div class="error-loc">Léxico y sintáctico: 0 errores detectados.</div></div></div>`;
+    return;
+  }
+
+  container.innerHTML = allErrors.map(e => {
+    // Highlight error line in CodeMirror
+    if (e.line > 0) cm.addLineClass(e.line - 1, 'background', 'CodeMirror-line-error');
+    return `<div class="error-item ${e.type}">
+      <span class="error-badge badge-${e.type}">${e.type === 'lex' ? '⚡ LÉXICO' : '⚠ SINTÁCTICO'}</span>
+      <div>
+        <div class="error-msg">${escHtml(e.msg)}</div>
+        <div class="error-loc">Línea ${e.line}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(tokenCount, logicalLines, symCount, errorCount) {
+  animateCount('stat-tokens',  tokenCount);
+  animateCount('stat-lines',   logicalLines);
+  animateCount('stat-symbols', symCount);
+  animateCount('stat-errors',  errorCount);
+  document.getElementById('cnt-tokens').textContent  = tokenCount;
+  document.getElementById('cnt-symbols').textContent = symCount;
+  document.getElementById('cnt-errors').textContent  = errorCount;
+  // stat-errors color
+  document.getElementById('stat-errors').style.color = errorCount > 0 ? 'var(--accent3)' : 'var(--accent)';
+}
+
+function animateCount(id, target) {
+  const el = document.getElementById(id);
+  const start = parseInt(el.textContent) || 0;
+  const dur = 400, steps = 20;
+  let step = 0;
+  const timer = setInterval(() => {
+    step++;
+    el.textContent = Math.round(start + (target - start) * (step/steps));
+    if (step >= steps) { el.textContent = target; clearInterval(timer); }
+  }, dur/steps);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MAIN RUN
+// ══════════════════════════════════════════════════════════════════════
+async function runAnalysis() {
+  const src = cm.getValue();
+  if (!src.trim()) return;
+
+  // Clear error marks
+  for (let i = 0; i < cm.lineCount(); i++)
+    cm.removeLineClass(i, 'background', 'CodeMirror-line-error');
+
+  const overlay = document.getElementById('loading-overlay');
+  const phase   = document.getElementById('loading-phase');
+  overlay.classList.add('show');
+
+  await sleep(20); // let UI repaint
+  phase.textContent = 'Fase léxica — tokenizando...';
+  await sleep(80);
+
+  // ── Lexical Analysis ──
+  const { tokens, errors: lexErrors, logicalLines } = tokenize(src);
+
+  phase.textContent = 'Construyendo tabla de símbolos...';
+  await sleep(80);
+  const symMap = buildSymbolTable(tokens);
+
+  phase.textContent = 'Fase sintáctica — análisis LL(1)...';
+  await sleep(100);
+
+  // ── Syntactic Analysis ──
+  parseTokens = tokens;
+  parsePos    = 0;
+  parseErrors = [];
+  let ast = null;
+  try { ast = parseProgram(); }
+  catch(e) { parseErrors.push({ type:'syn', msg:`Error interno del analizador: ${e.message}`, line:1 }); }
+
+  phase.textContent = 'Renderizando resultados...';
+  await sleep(60);
+
+  // ── Render ──
+  renderTokenTable(tokens.filter(t => t.type !== 'NEWLINE')); // hide newlines from table for clarity
+  renderSymbolTable(symMap);
+  renderErrors(lexErrors, parseErrors);
+  updateStats(
+    tokens.filter(t => !['NEWLINE'].includes(t.type)).length,
+    logicalLines,
+    symMap.size,
+    lexErrors.length + parseErrors.length
+  );
+
+  if (ast) {
+    switchTab('tree');
+    setTimeout(() => renderTree(ast), 50);
+  }
+
+  overlay.classList.remove('show');
+
+  // Auto-switch to errors if any
+  if (lexErrors.length + parseErrors.length > 0) switchTab('errors');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['tokens','symbols','errors','tree'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if (name === 'tree') setTimeout(resetZoom, 100);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function clearEditor() {
+  cm.setValue('');
+  document.getElementById('token-body').innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="empty-icon">⬡</span>Presiona "Analizar" para generar la tabla de tokens</div></td></tr>';
+  document.getElementById('symbol-body').innerHTML = '<tr><td colspan="5"><div class="empty-state"><span class="empty-icon">⬡</span>La tabla de símbolos aparecerá aquí</div></td></tr>';
+  document.getElementById('errors-list').innerHTML = '<div class="empty-state"><span class="empty-icon">✓</span>Sin errores detectados</div>';
+  document.getElementById('tree-empty').style.display = '';
+  d3.select('#tree-svg').selectAll('*').remove();
+  updateStats(0,0,0,0);
+  switchTab('tokens');
+}
+
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { cm.setValue(e.target.result); };
+  reader.readAsText(file);
+}
+
+function loadExample() {
+  cm.setValue(`# Ejemplo: Cálculo de promedio con validación
+def calcular_promedio(numeros):
+    total = 0
+    for num in numeros:
+        total += num
+    if len(numeros) > 0:
+        return total / len(numeros)
+    return 0.0
+
+class Estadisticas:
+    def __init__(self, datos):
+        self.datos = datos
+        self.n = len(datos)
+
+    def promedio(self):
+        return calcular_promedio(self.datos)
+
+    def maximo(self):
+        resultado = self.datos[0]
+        for x in self.datos:
+            if x > resultado:
+                resultado = x
+        return resultado
+
+# Uso
+valores = [10, 25, 8, 42, 17, 3]
+stats = Estadisticas(valores)
+prom = stats.promedio()
+maximo = stats.maximo()
+print("Promedio:", prom)
+print("Máximo:", maximo)
+`);
+}
+
+// Init
+loadExample();
+document.getElementById('line-badge').textContent = `${cm.lineCount()} líneas`;
+</script>
+</body>
+</html>
