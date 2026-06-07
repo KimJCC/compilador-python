@@ -355,6 +355,50 @@
 
   /* ── LINE HIGHLIGHT ── */
   .CodeMirror-line-error { background: rgba(255,107,107,0.12) !important; }
+  /* ── DOCS TAB ── */
+  #tab-docs.active { display:block; overflow-y:auto; }
+  .docs-wrap { max-width:820px; margin:0 auto; padding:28px 24px 60px; font-family:var(--font-ui); }
+  .docs-hero { display:flex; align-items:center; gap:16px; padding:24px 28px; background:linear-gradient(135deg,var(--surface2),#1e2636); border:1px solid var(--border); border-radius:12px; margin-bottom:24px; }
+  .docs-logo { width:48px;height:48px;background:var(--accent);color:#0d0f14;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:18px;font-family:var(--font-code);flex-shrink:0; }
+  .docs-title { font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px; }
+  .docs-sub { font-size:11px;color:var(--text-dim); }
+  .docs-nav { display:flex;flex-wrap:wrap;gap:5px;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:28px;position:sticky;top:0;z-index:5;background:var(--bg); }
+  .docs-nav a { font-size:11px;font-weight:700;color:var(--text-dim);padding:4px 11px;border:1px solid var(--border);border-radius:20px;text-decoration:none;transition:all .15s; }
+  .docs-nav a:hover { color:var(--accent);border-color:var(--accent); }
+  .docs-sec { margin-bottom:44px;scroll-margin-top:55px; }
+  .docs-h2 { display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--accent); }
+  .docs-badge { background:var(--accent);color:#0d0f14;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0; }
+  .docs-h3 { font-size:13px;font-weight:700;color:var(--accent2);margin:18px 0 8px; }
+  .dp { font-size:13px;line-height:1.7;color:var(--text);margin-bottom:10px; }
+  .dtw { overflow-x:auto;margin:10px 0;border-radius:8px;border:1px solid var(--border); }
+  .dt { width:100%;border-collapse:collapse;font-size:12px; }
+  .dt th { background:var(--surface2);color:var(--text-dim);font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:7px 11px;text-align:left; }
+  .dt td { padding:7px 11px;border-top:1px solid var(--border);vertical-align:top;line-height:1.5; }
+  .dt tr:hover td { background:var(--surface2); }
+  .dc { font-family:var(--font-code);font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--accent4); }
+  .dpre { font-family:var(--font-code);font-size:12px;line-height:1.7;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;overflow-x:auto;color:var(--text);margin:10px 0; }
+  .dgram { background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:10px 0; }
+  .gnt { color:var(--accent2);font-weight:700;font-family:var(--font-code);font-size:12px; }
+  .garr { color:var(--text-dim);margin:0 6px;font-family:var(--font-code); }
+  .gb { color:var(--text);font-family:var(--font-code);font-size:12px; }
+  .gkt { color:var(--accent4); }
+  .gp { margin-bottom:6px; }
+  .tb { display:inline-block;font-size:10px;font-weight:700;font-family:var(--font-code);padding:1px 6px;border-radius:4px;white-space:nowrap; }
+  .tb.kw { background:#2d1f5e;color:#c4b5fd;border:1px solid #4c3d8f; }
+  .tb.id { background:#1a2e40;color:var(--accent2);border:1px solid #2a4a6a; }
+  .tb.li { background:#2e2210;color:var(--accent4);border:1px solid #5a4020; }
+  .tb.st { background:#1e2e1e;color:#86efac;border:1px solid #2d4d2d; }
+  .tb.op { background:#2e1e1e;color:var(--accent3);border:1px solid #5a2d2d; }
+  .tb.dl { background:var(--surface2);color:var(--text-dim);border:1px solid var(--border); }
+  .tb.in { background:#1e2e2e;color:#67e8f9;border:1px solid #2d4e4e; }
+  .tb.cm { background:#1a1e1a;color:#6b7280;border:1px solid #2d3d2d; }
+  .tb.nl { background:#1e1e2e;color:#94a3b8;border:1px solid #2d2d4e; }
+  .afd-box { background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin:10px 0;display:flex;justify-content:center; }
+  .conway-box { background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:10px 0; }
+  .conway-lbl { font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-family:var(--font-code); }
+  .dl { padding-left:20px;margin:6px 0 10px; }
+  .dl li { font-size:13px;line-height:1.7;color:var(--text);margin-bottom:5px; }
+  .ok { color:var(--accent);font-weight:700; }
 </style>
 </head>
 <body>
@@ -362,9 +406,9 @@
 <header>
   <div class="logo">
     <div class="logo-icon">Py</div>
-    Py<span>Compiler</span>
+    Py<span>Compildor</span>
   </div>
-  <span class="header-meta">Analizador Léxico &amp; Sintáctico · Python 3 · LL(1)</span>
+  <span class="header-meta">Analizador Léxico &amp; Sintáctico · mini Python </span>
 </header>
 
 <div class="workspace">
@@ -381,9 +425,6 @@
     <div class="editor-actions">
       <button class="btn btn-primary" onclick="runAnalysis()">▶ Analizar</button>
       <button class="btn btn-secondary" onclick="loadExample()">Ejemplo</button>
-      <label class="btn btn-secondary" style="cursor:pointer">
-        Cargar .py <input type="file" accept=".py,.txt" style="display:none" onchange="loadFile(event)">
-      </label>
       <button class="btn btn-danger" onclick="clearEditor()">✕</button>
     </div>
   </div>
@@ -417,6 +458,7 @@
       <div class="tab" onclick="switchTab('symbols')">Símbolos <span class="tab-count" id="cnt-symbols">0</span></div>
       <div class="tab" onclick="switchTab('errors')">Errores <span class="tab-count" id="cnt-errors">0</span></div>
       <div class="tab" onclick="switchTab('tree')">Árbol Sintáctico</div>
+      <div class="tab" onclick="switchTab('docs')" style="margin-left:auto"> Documentación</div>
     </div>
 
     <!-- tokens tab -->
@@ -464,6 +506,9 @@
         </div>
       </div>
     </div>
+
+    <!-- docs tab -->
+    <div class="tab-content" id="tab-docs" style="overflow-y:auto;padding:0"></div>
 
   </div>
 </div>
@@ -563,7 +608,6 @@ function tokenize(src) {
       }
     }
 
-    // Scan the line character by character
     let i = 0;
     const line = rawLine;
 
@@ -1129,7 +1173,7 @@ function renderTree(root) {
   svg.call(treeZoomBehavior);
 
   const hierarchy = d3.hierarchy(root, d => d.children && d.children.length ? d.children : null);
-  const treeLayout = d3.tree().nodeSize([120, 60]);
+  const treeLayout = d3.tree().nodeSize([100, 60]);
   treeLayout(hierarchy);
 
   // Links
@@ -1355,7 +1399,7 @@ async function runAnalysis() {
 // ══════════════════════════════════════════════════════════════════════
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const names = ['tokens','symbols','errors','tree'];
+    const names = ['tokens','symbols','errors','tree','docs'];
     t.classList.toggle('active', names[i] === name);
   });
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1424,6 +1468,497 @@ print("Máximo:", maximo)
 }
 
 // Init
+document.getElementById('tab-docs').innerHTML = `
+<div class="docs-wrap">
+  <div class="docs-hero">
+    <div class="docs-logo">Py</div>
+    <div>
+      <div class="docs-title">Análisis del Lenguaje Python</div>
+      <div class="docs-sub">Kimberly Calel &nbsp;·&nbsp; Carne 0902 23 10553 &nbsp;·&nbsp; Curso de Compiladores </div>
+    </div>
+  </div>
+  <div class="docs-nav">
+    <a href="#ds1">Introducción</a>
+    <a href="#ds2">Análisis Léxico</a>
+    <a href="#ds3">Autómatas AFD</a>
+    <a href="#ds4">Máq. Discriminadora</a>
+    <a href="#ds5">Gramática</a>
+    <a href="#ds6">BNF / Conway</a>
+    <a href="#ds7">LL(1)</a>
+    <a href="#ds8">Software</a>
+    <a href="#ds9">Referencias</a>
+  </div>
+
+  <!-- I -->
+  <div class="docs-sec" id="ds1">
+    <h2 class="docs-h2"><span class="docs-badge">I</span>Análisis del Lenguaje Python</h2>
+    <h3 class="docs-h3">1.1 Justificación del Lenguaje</h3>
+    <p class="dp">Python es un lenguaje de alto nivel, interpretado y de propósito general. Su sintaxis clara lo convierte en caso de estudio ideal para el análisis léxico y sintáctico. Utiliza <strong>indentación significativa</strong> en lugar de llaves, lo que representa un reto mediante los tokens especiales <span class="dc">INDENT</span> y <span class="dc">DEDENT</span>. El sistema esta diseñado para un "Mini-Python" académico (bucles sencillos, asignaciones, if-else). Estructuras avanzadas de Python reales como los bloques try: / except:, el else al final de un bucle for, o la declaración de diccionarios (con llaves {}) van mucho más allá de las producciones que se crearon.</p>
+    <h3 class="docs-h3">1.2 Categorías Léxicas</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>N°</th><th>Categoría</th><th>Descripción / Ejemplos</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><span class="tb kw">KEYWORD</span></td><td>False, None, True, and, as, assert, async, await, break, class, continue, def, del, elif, else, except, finally, for, from, global, if, import, in, is, lambda, nonlocal, not, or, pass, raise, return, try, while, with, yield</td></tr>
+        <tr><td>2</td><td><span class="tb id">IDENTIFIER</span></td><td>Nombres de variables, funciones, clases: total, calcular_area, MiClase, _privado</td></tr>
+        <tr><td>3</td><td><span class="tb li">INTEGER</span></td><td>Decimal: 42; Hexadecimal: 0xFF; Octal: 0o17; Binario: 0b1010</td></tr>
+        <tr><td>4</td><td><span class="tb li">FLOAT</span></td><td>3.14, 2.0, 1.5e-10, .001, 1_000.50</td></tr>
+        <tr><td>5</td><td><span class="tb st">STRING</span></td><td>"Hola", 'mundo', """docstring""", f"Hola {nombre}"</td></tr>
+        <tr><td>6</td><td><span class="tb op">OP_ARITH</span></td><td>+ - * / // % ** (suma, resta, multiplicación, div entera, módulo, potencia)</td></tr>
+        <tr><td>7</td><td><span class="tb op">OP_COMP</span></td><td>== != &lt; &gt; &lt;= &gt;=</td></tr>
+        <tr><td>8</td><td><span class="tb op">OP_ASSIGN</span></td><td>= += -= *= /= //= %= **= &amp;= |= ^= &gt;&gt;= &lt;&lt;=</td></tr>
+        <tr><td>9</td><td><span class="tb op">OP_LOGIC</span></td><td>and or not</td></tr>
+        <tr><td>10</td><td><span class="tb op">OP_BIT</span></td><td>&amp; | ^ ~ &lt;&lt; &gt;&gt;</td></tr>
+        <tr><td>11</td><td><span class="tb dl">DELIMITER</span></td><td>( ) [ ] { } , : ; . -&gt; @</td></tr>
+        <tr><td>12</td><td><span class="tb in">INDENT/DEDENT</span></td><td>Inicio y fin de bloques indentados</td></tr>
+        <tr><td>13</td><td><span class="tb cm">COMMENT</span></td><td># Comentario — descartado por el lexer</td></tr>
+        <tr><td>14</td><td><span class="tb nl">NEWLINE</span></td><td>Fin de línea lógica</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">1.3 Estructura de los Tokens — Ejemplo: <span class="dc">resultado = valor1 + 23.5</span></h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>#</th><th>Tipo</th><th>Lexema</th><th>Línea</th><th>Col.</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><span class="tb id">IDENTIFIER</span></td><td>resultado</td><td>1</td><td>1</td></tr>
+        <tr><td>2</td><td><span class="tb op">OP_ASSIGN</span></td><td>=</td><td>1</td><td>11</td></tr>
+        <tr><td>3</td><td><span class="tb id">IDENTIFIER</span></td><td>valor1</td><td>1</td><td>13</td></tr>
+        <tr><td>4</td><td><span class="tb op">OP_ARITH</span></td><td>+</td><td>1</td><td>20</td></tr>
+        <tr><td>5</td><td><span class="tb li">FLOAT</span></td><td>23.5</td><td>1</td><td>22</td></tr>
+        <tr><td>6</td><td><span class="tb nl">NEWLINE</span></td><td>\\n</td><td>1</td><td>26</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">1.4 Notación BNF — Estructuras Principales</h3>
+    <pre class="dpre">&lt;programa&gt;         ::= &lt;sentencia&gt;+
+&lt;sentencia&gt;        ::= &lt;sentencia_simple&gt; NEWLINE | &lt;sentencia_compuesta&gt;
+&lt;sentencia_simple&gt; ::= &lt;asignacion&gt; | &lt;expresion&gt; | &lt;return_stmt&gt; | "pass" | "break"
+&lt;asignacion&gt;       ::= &lt;target&gt; "=" &lt;expresion&gt;
+&lt;if_stmt&gt;          ::= "if" &lt;expresion&gt; ":" &lt;bloque&gt; ("elif" &lt;expresion&gt; ":" &lt;bloque&gt;)* ["else" ":" &lt;bloque&gt;]
+&lt;while_stmt&gt;       ::= "while" &lt;expresion&gt; ":" &lt;bloque&gt;
+&lt;for_stmt&gt;         ::= "for" &lt;target&gt; "in" &lt;expresion&gt; ":" &lt;bloque&gt;
+&lt;def_stmt&gt;         ::= "def" IDENTIFIER "(" [&lt;params&gt;] ")" ["->"; &lt;expresion&gt;] ":" &lt;bloque&gt;
+&lt;bloque&gt;           ::= NEWLINE INDENT &lt;sentencia&gt;+ DEDENT</pre>
+  </div>
+
+  <!-- II -->
+  <div class="docs-sec" id="ds2">
+    <h2 class="docs-h2"><span class="docs-badge">II</span>Analizador Léxico</h2>
+    <h3 class="docs-h3">2.1 Patrones de las Categorías Léxicas</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Categoría</th><th>Patrón en Lenguaje Natural</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tb kw">KEYWORD</span></td><td>Secuencia exacta de letras minúsculas que coincide con alguna de las 35 palabras reservadas. Distingue mayúsculas/minúsculas.</td></tr>
+        <tr><td><span class="tb id">IDENTIFIER</span></td><td>Comienza con letra (a-z, A-Z) o guión bajo (_). Continúa con letras, dígitos o guiones bajos. No puede ser palabra reservada.</td></tr>
+        <tr><td><span class="tb li">INTEGER</span></td><td>Uno o más dígitos decimales. Variantes con prefijo 0x, 0o, 0b. Permite separador _ entre dígitos.</td></tr>
+        <tr><td><span class="tb li">FLOAT</span></td><td>Dígitos seguidos de punto decimal y opcionalmente más dígitos. Puede incluir parte exponencial (e/E).</td></tr>
+        <tr><td><span class="tb st">STRING</span></td><td>Contenido entre comillas simples o dobles. Triples comillas permiten multilínea. Prefijos r, b, f.</td></tr>
+        <tr><td><span class="tb op">OP_ARITH</span></td><td>+ - * / // % ** Prioridad: // y ** antes que / y *.</td></tr>
+        <tr><td><span class="tb op">OP_COMP</span></td><td>== != &lt; &gt; &lt;= &gt;= — uno o dos caracteres.</td></tr>
+        <tr><td><span class="tb dl">DELIMITER</span></td><td>Caracteres de puntuación aislados: ()[]{},:;.→@</td></tr>
+        <tr><td><span class="tb cm">COMMENT</span></td><td># seguido de cualquier carácter hasta fin de línea. Se descarta sin generar token.</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">2.2 Expresiones Regulares</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Token</th><th>Expresión Regular</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tb kw">KEYWORD</span></td><td><span class="dc">False|None|True|and|as|assert|…|yield</span></td></tr>
+        <tr><td><span class="tb id">IDENTIFIER</span></td><td><span class="dc">[a-zA-Z_][a-zA-Z0-9_]*</span></td></tr>
+        <tr><td><span class="tb li">INTEGER</span></td><td><span class="dc">(0[xX][0-9a-fA-F]+)|(0[oO][0-7]+)|(0[bB][01]+)|([1-9][0-9]*|0)</span></td></tr>
+        <tr><td><span class="tb li">FLOAT</span></td><td><span class="dc">([0-9]+\\.([0-9]+)?|\\.[0-9]+)([eE][+-]?[0-9]+)?</span></td></tr>
+        <tr><td><span class="tb st">STRING</span></td><td><span class="dc">([rRbBfF])?('''.*?'''|""".*?"""|'[^'\\n]*'|"[^"\\n]*")</span></td></tr>
+        <tr><td><span class="tb op">OP_ARITH</span></td><td><span class="dc">\\*\\*|\\/\\/|[+\\-*/%@]</span></td></tr>
+        <tr><td><span class="tb op">OP_COMP</span></td><td><span class="dc">==|!=|&lt;=|&gt;=|&lt;|&gt;</span></td></tr>
+        <tr><td><span class="tb op">OP_ASSIGN</span></td><td><span class="dc">\\*\\*=|\\/\\/=|[+\\-*/%&|^]=|=(?!=)</span></td></tr>
+        <tr><td><span class="tb op">OP_BIT</span></td><td><span class="dc">&gt;&gt;|&lt;&lt;|[&|^~]</span></td></tr>
+        <tr><td><span class="tb dl">DELIMITER</span></td><td><span class="dc">[(){}\\[\\],:;@]|\\.|->|\\.\\.\\.</span></td></tr>
+        <tr><td><span class="tb cm">COMMENT</span></td><td><span class="dc">#[^\\n]*</span></td></tr>
+        <tr><td><span class="tb nl">NEWLINE</span></td><td><span class="dc">\\r?\\n</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- III -->
+  <div class="docs-sec" id="ds3">
+    <h2 class="docs-h2"><span class="docs-badge">III</span>Autómatas Finitos Deterministas (AFD)</h2>
+    <p class="dp">Cada expresión regular tiene un AFD equivalente. Notación: <strong>q0</strong> = estado inicial, <strong>★</strong> = estado de aceptación.</p>
+    <h3 class="docs-h3">AFD 1 — Identificadores y Palabras Reservadas</h3>
+    <div class="afd-box">
+      <svg viewBox="0 0 460 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px">
+        <defs><marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4af0a0"/></marker></defs>
+        <line x1="28" y1="50" x2="66" y2="50" stroke="#4af0a0" stroke-width="1.5" marker-end="url(#a1)"/>
+        <text x="20" y="44" fill="#7a8299" font-size="10" font-family="monospace">start</text>
+        <circle cx="88" cy="50" r="20" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="88" y="54" fill="#4af0a0" font-size="11" text-anchor="middle" font-weight="bold">q0</text>
+        <line x1="108" y1="50" x2="208" y2="50" stroke="#4af0a0" stroke-width="1.5" marker-end="url(#a1)"/>
+        <text x="158" y="43" fill="#e4e8f0" font-size="10" text-anchor="middle" font-family="monospace">[a-zA-Z_]</text>
+        <circle cx="230" cy="50" r="20" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <circle cx="230" cy="50" r="15" fill="none" stroke="#4af0a0" stroke-width="1"/>
+        <text x="230" y="54" fill="#4af0a0" font-size="11" text-anchor="middle" font-weight="bold">q1★</text>
+        <path d="M221,30 C221,5 239,5 239,30" fill="none" stroke="#6c8fff" stroke-width="1.5" marker-end="url(#a1)"/>
+        <text x="230" y="8" fill="#6c8fff" font-size="9" text-anchor="middle" font-family="monospace">[a-zA-Z0-9_]</text>
+        <line x1="250" y1="50" x2="345" y2="50" stroke="#ff6b6b" stroke-width="1.5" marker-end="url(#a1)"/>
+        <text x="297" y="43" fill="#ff6b6b" font-size="10" text-anchor="middle" font-family="monospace">otro</text>
+        <rect x="347" y="34" width="90" height="30" rx="6" fill="#1a1f2b" stroke="#ff6b6b" stroke-width="1.5"/>
+        <text x="392" y="53" fill="#ff6b6b" font-size="11" text-anchor="middle">Emite token</text>
+      </svg>
+    </div>
+    <h3 class="docs-h3">AFD 2 — Literales Enteros (Decimal)</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Estado</th><th>[1-9]</th><th>[0]</th><th>[0-9_]</th><th>Otro</th></tr></thead>
+      <tbody>
+        <tr><td>→ q0</td><td>q2</td><td>q1</td><td>—</td><td>Error</td></tr>
+        <tr><td>q1 ★</td><td>—</td><td>—</td><td>—</td><td>Retrocede, emite</td></tr>
+        <tr><td>q2 ★</td><td>q2</td><td>q2</td><td>q2</td><td>Retrocede, emite</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">AFD 3 — Literales de Punto Flotante</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Estado</th><th>[0-9]</th><th>[.]</th><th>[eE]</th><th>[+-]</th><th>Otro</th></tr></thead>
+      <tbody>
+        <tr><td>→ q0</td><td>q1</td><td>q2</td><td>—</td><td>—</td><td>Error</td></tr>
+        <tr><td>q1</td><td>q1</td><td>q3</td><td>q5</td><td>—</td><td>Retrocede</td></tr>
+        <tr><td>q2</td><td>q4</td><td>—</td><td>—</td><td>—</td><td>Error</td></tr>
+        <tr><td>q3 ★</td><td>q3</td><td>—</td><td>q5</td><td>—</td><td>Retrocede, emite</td></tr>
+        <tr><td>q4 ★</td><td>q4</td><td>—</td><td>q5</td><td>—</td><td>Retrocede, emite</td></tr>
+        <tr><td>q5</td><td>q7</td><td>—</td><td>—</td><td>q6</td><td>Error</td></tr>
+        <tr><td>q6</td><td>q7</td><td>—</td><td>—</td><td>—</td><td>Error</td></tr>
+        <tr><td>q7 ★</td><td>q7</td><td>—</td><td>—</td><td>—</td><td>Retrocede, emite</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">AFD 4 — Operadores de Comparación</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Estado</th><th>[&lt;]</th><th>[&gt;]</th><th>[=!]</th><th>[=] tras anterior</th></tr></thead>
+      <tbody>
+        <tr><td>→ q0</td><td>q1</td><td>q2</td><td>q3</td><td>—</td></tr>
+        <tr><td>q1 ★ (&lt;)</td><td>—</td><td>—</td><td>—</td><td>q4 (&lt;=)</td></tr>
+        <tr><td>q2 ★ (&gt;)</td><td>—</td><td>—</td><td>—</td><td>q5 (&gt;=)</td></tr>
+        <tr><td>q3 ★ (=)</td><td>—</td><td>—</td><td>—</td><td>q6 (==) / q7 (!=)</td></tr>
+        <tr><td>q4–q7 ★</td><td colspan="4">Emite y retrocede</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- IV -->
+  <div class="docs-sec" id="ds4">
+    <h2 class="docs-h2"><span class="docs-badge">IV</span>Máquina Discriminadora Determinista</h2>
+    <p class="dp">Integra todos los AFDs en un único autómata con estado inicial común. Aplica el principio <em>maximal munch</em>: siempre consume el lexema más largo posible.</p>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Primer Carácter</th><th>Rama → Token Resultante</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dc">[a-zA-Z_]</span></td><td>→ AFD Identificadores → <span class="tb id">IDENTIFIER</span> o <span class="tb kw">KEYWORD</span></td></tr>
+        <tr><td><span class="dc">[1-9]</span></td><td>→ AFD Entero Decimal → <span class="tb li">INTEGER</span></td></tr>
+        <tr><td><span class="dc">[0]</span></td><td>→ Verifica siguiente: x/X→HEX; o/O→OCT; b/B→BIN; dígito→INT; .→FLOAT</td></tr>
+        <tr><td><span class="dc">[.]</span></td><td>→ Si sigue dígito: <span class="tb li">FLOAT</span>; si no: <span class="tb dl">DELIMITER</span></td></tr>
+        <tr><td><span class="dc">["']</span></td><td>→ AFD String (verifica triples comillas primero) → <span class="tb st">STRING</span></td></tr>
+        <tr><td><span class="dc">[+]</span></td><td>→ Si sigue =: <span class="tb op">OP_ASSIGN</span> (+=); si no: <span class="tb op">OP_ARITH</span> (+)</td></tr>
+        <tr><td><span class="dc">[-]</span></td><td>→ Si =: OP_ASSIGN; si &gt;: DELIMITER (→); si no: OP_ARITH</td></tr>
+        <tr><td><span class="dc">[*]</span></td><td>→ Si **: si = → OP_ASSIGN (**=); si no → OP_ARITH (**); si *=: OP_ASSIGN; si no: OP_ARITH</td></tr>
+        <tr><td><span class="dc">[/]</span></td><td>→ Si //: si = → OP_ASSIGN (//=); si no → OP_ARITH (//); si /=: OP_ASSIGN; si no: OP_ARITH</td></tr>
+        <tr><td><span class="dc">[=]</span></td><td>→ Si ==: <span class="tb op">OP_COMP</span>; si no: <span class="tb op">OP_ASSIGN</span></td></tr>
+        <tr><td><span class="dc">[!]</span></td><td>→ Debe seguir =: <span class="tb op">OP_COMP</span> (!=); si no: ERROR léxico</td></tr>
+        <tr><td><span class="dc">[#]</span></td><td>→ Consume hasta \\n: <span class="tb cm">COMMENT</span> (descartado)</td></tr>
+        <tr><td><span class="dc">[\\n]</span></td><td>→ <span class="tb nl">NEWLINE</span>; detecta INDENT/DEDENT al inicio de la siguiente línea</td></tr>
+        <tr><td><span class="dc">[ \\t]</span> inicio</td><td>→ Cuenta espacios → emite <span class="tb in">INDENT</span> o <span class="tb in">DEDENT</span></td></tr>
+        <tr><td><span class="dc">[(){}[],;:@]</span></td><td>→ <span class="tb dl">DELIMITER</span> directo</td></tr>
+        <tr><td>EOF</td><td>→ Emite DEDENTs pendientes + ENDMARKER</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">Evaluación Léxica — Bloque de Ejemplo</h3>
+    <pre class="dpre">def calcular_promedio(numeros):
+    total = 0
+    for num in numeros:
+        total += num
+    if len(numeros) &gt; 0:
+        return total / len(numeros)
+    return 0</pre>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>#</th><th>Token</th><th>Lexema</th><th>Línea</th><th>Col.</th><th>Categoría</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><span class="tb kw">KEYWORD</span></td><td>def</td><td>1</td><td>1</td><td>Palabra reservada</td></tr>
+        <tr><td>2</td><td><span class="tb id">IDENTIFIER</span></td><td>calcular_promedio</td><td>1</td><td>5</td><td>Identificador</td></tr>
+        <tr><td>3</td><td><span class="tb dl">DELIMITER</span></td><td>(</td><td>1</td><td>23</td><td>Delimitador</td></tr>
+        <tr><td>4</td><td><span class="tb id">IDENTIFIER</span></td><td>numeros</td><td>1</td><td>24</td><td>Identificador</td></tr>
+        <tr><td>5</td><td><span class="tb dl">DELIMITER</span></td><td>)</td><td>1</td><td>31</td><td>Delimitador</td></tr>
+        <tr><td>6</td><td><span class="tb dl">DELIMITER</span></td><td>:</td><td>1</td><td>32</td><td>Delimitador</td></tr>
+        <tr><td>7</td><td><span class="tb nl">NEWLINE</span></td><td>\\n</td><td>1</td><td>33</td><td>Fin de línea</td></tr>
+        <tr><td>8</td><td><span class="tb in">INDENT</span></td><td>(4 esp.)</td><td>2</td><td>1</td><td>Inicio de bloque</td></tr>
+        <tr><td>9</td><td><span class="tb id">IDENTIFIER</span></td><td>total</td><td>2</td><td>5</td><td>Identificador</td></tr>
+        <tr><td>10</td><td><span class="tb op">OP_ASSIGN</span></td><td>=</td><td>2</td><td>11</td><td>Operador asignación</td></tr>
+        <tr><td>11</td><td><span class="tb li">INTEGER</span></td><td>0</td><td>2</td><td>13</td><td>Literal entero</td></tr>
+        <tr><td>12</td><td><span class="tb nl">NEWLINE</span></td><td>\\n</td><td>2</td><td>14</td><td>Fin de línea</td></tr>
+        <tr><td>13</td><td><span class="tb kw">KEYWORD</span></td><td>for</td><td>3</td><td>5</td><td>Palabra reservada</td></tr>
+        <tr><td>14</td><td><span class="tb id">IDENTIFIER</span></td><td>num</td><td>3</td><td>9</td><td>Identificador</td></tr>
+        <tr><td>15</td><td><span class="tb kw">KEYWORD</span></td><td>in</td><td>3</td><td>13</td><td>Palabra reservada</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- V -->
+  <div class="docs-sec" id="ds5">
+    <h2 class="docs-h2"><span class="docs-badge">V</span>Analizador Sintáctico — Gramática</h2>
+    <h3 class="docs-h3">3.1 Gramática Incontextual</h3>
+    <div class="dgram">
+      <div class="gp"><span class="gnt">programa</span><span class="garr">→</span><span class="gb">sentencia<sup>+</sup></span></div>
+      <div class="gp"><span class="gnt">sentencia</span><span class="garr">→</span><span class="gb">sentencia_simple NEWLINE | sentencia_comp</span></div>
+      <div class="gp"><span class="gnt">sentencia_simple</span><span class="garr">→</span><span class="gb">asignacion | expresion | return_stmt | <span class="gkt">"pass"</span> | <span class="gkt">"break"</span></span></div>
+      <div class="gp"><span class="gnt">asignacion</span><span class="garr">→</span><span class="gb">target <span class="gkt">"="</span> expresion</span></div>
+      <div class="gp"><span class="gnt">expresion</span><span class="garr">→</span><span class="gb">expr_or</span></div>
+      <div class="gp"><span class="gnt">expr_or</span><span class="garr">→</span><span class="gb">expr_and | expr_or <span class="gkt">"or"</span> expr_and</span></div>
+      <div class="gp"><span class="gnt">expr_and</span><span class="garr">→</span><span class="gb">expr_not | expr_and <span class="gkt">"and"</span> expr_not</span></div>
+      <div class="gp"><span class="gnt">expr_comp</span><span class="garr">→</span><span class="gb">expr_add ( op_comp expr_add )*</span></div>
+      <div class="gp"><span class="gnt">expr_add</span><span class="garr">→</span><span class="gb">expr_mul ( ( <span class="gkt">"+"</span> | <span class="gkt">"-"</span> ) expr_mul )*</span></div>
+      <div class="gp"><span class="gnt">expr_mul</span><span class="garr">→</span><span class="gb">expr_pot ( ( <span class="gkt">"*"</span> | <span class="gkt">"/"</span> | <span class="gkt">"//"</span> | <span class="gkt">"%"</span> ) expr_pot )*</span></div>
+      <div class="gp"><span class="gnt">expr_primaria</span><span class="garr">→</span><span class="gb">IDENTIFIER | LITERAL | <span class="gkt">"("</span> expresion <span class="gkt">")"</span> | llamada_func</span></div>
+      <div class="gp"><span class="gnt">if_stmt</span><span class="garr">→</span><span class="gb"><span class="gkt">"if"</span> expresion <span class="gkt">":"</span> bloque ( <span class="gkt">"elif"</span> expresion <span class="gkt">":"</span> bloque )* [ <span class="gkt">"else"</span> <span class="gkt">":"</span> bloque ]</span></div>
+      <div class="gp"><span class="gnt">while_stmt</span><span class="garr">→</span><span class="gb"><span class="gkt">"while"</span> expresion <span class="gkt">":"</span> bloque</span></div>
+      <div class="gp"><span class="gnt">for_stmt</span><span class="garr">→</span><span class="gb"><span class="gkt">"for"</span> target <span class="gkt">"in"</span> expresion <span class="gkt">":"</span> bloque</span></div>
+      <div class="gp"><span class="gnt">def_stmt</span><span class="garr">→</span><span class="gb"><span class="gkt">"def"</span> IDENTIFIER <span class="gkt">"("</span> [ params ] <span class="gkt">")"</span> [ <span class="gkt">"->"</span> expresion ] <span class="gkt">":"</span> bloque</span></div>
+      <div class="gp"><span class="gnt">bloque</span><span class="garr">→</span><span class="gb">NEWLINE INDENT sentencia<sup>+</sup> DEDENT</span></div>
+    </div>
+    <h3 class="docs-h3">Árbol Sintáctico — Ejemplo: <span class="dc">def calcular_promedio(numeros): total = 0</span></h3>
+    <pre class="dpre">programa
+└─ sentencia_compuesta
+   └─ def_stmt
+      ├─ "def"                    (KEYWORD)
+      ├─ calcular_promedio        (IDENTIFIER)
+      ├─ "("                      (DELIMITER)
+      ├─ params → param → numeros (IDENTIFIER)
+      ├─ ")"                      (DELIMITER)
+      ├─ ":"                      (DELIMITER)
+      └─ bloque
+         ├─ INDENT
+         ├─ sentencia_simple
+         │  └─ asignacion
+         │     ├─ target → total  (IDENTIFIER)
+         │     ├─ "="             (OP_ASSIGN)
+         │     └─ expresion → 0  (INTEGER)
+         └─ DEDENT</pre>
+  </div>
+
+  <!-- VI -->
+  <div class="docs-sec" id="ds6">
+    <h2 class="docs-h2"><span class="docs-badge">VI</span>Notación BNF y Diagramas de Conway</h2>
+    <h3 class="docs-h3">Notación BNF Completa</h3>
+    <pre class="dpre">&lt;programa&gt;        ::= &lt;sentencia&gt;+
+&lt;sentencia&gt;       ::= &lt;sentencia_simple&gt; NEWLINE | &lt;sentencia_compuesta&gt;
+&lt;asignacion&gt;      ::= &lt;target&gt; "=" &lt;expresion&gt;
+&lt;expresion&gt;       ::= &lt;expr_or&gt;
+&lt;expr_or&gt;         ::= &lt;expr_and&gt; | &lt;expr_or&gt; "or" &lt;expr_and&gt;
+&lt;expr_and&gt;        ::= &lt;expr_not&gt; | &lt;expr_and&gt; "and" &lt;expr_not&gt;
+&lt;expr_not&gt;        ::= &lt;expr_comp&gt; | "not" &lt;expr_not&gt;
+&lt;expr_comp&gt;       ::= &lt;expr_add&gt; ( &lt;op_comp&gt; &lt;expr_add&gt; )*
+&lt;op_comp&gt;         ::= "==" | "!=" | "&lt;" | "&gt;" | "&lt;=" | "&gt;="
+&lt;expr_add&gt;        ::= &lt;expr_mul&gt; ( ("+" | "-") &lt;expr_mul&gt; )*
+&lt;expr_mul&gt;        ::= &lt;expr_pot&gt; ( ("*" | "/" | "//" | "%") &lt;expr_pot&gt; )*
+&lt;if_stmt&gt;         ::= "if" &lt;expresion&gt; ":" &lt;bloque&gt;
+                      ( "elif" &lt;expresion&gt; ":" &lt;bloque&gt; )*
+                      [ "else" ":" &lt;bloque&gt; ]
+&lt;while_stmt&gt;      ::= "while" &lt;expresion&gt; ":" &lt;bloque&gt;
+&lt;for_stmt&gt;        ::= "for" &lt;target&gt; "in" &lt;expresion&gt; ":" &lt;bloque&gt;
+&lt;def_stmt&gt;        ::= "def" IDENTIFIER "(" [ &lt;params&gt; ] ")" [ "-&gt;" &lt;expresion&gt; ] ":" &lt;bloque&gt;
+&lt;bloque&gt;          ::= NEWLINE INDENT &lt;sentencia&gt;+ DEDENT</pre>
+    <h3 class="docs-h3">Diagramas de Conway (Diagramas de Vías / Ferrocarril)</h3>
+    <div class="conway-box">
+      <div class="conway-lbl">sentencia_simple</div>
+      <svg viewBox="0 0 500 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px">
+        <defs><marker id="c1" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4af0a0"/></marker></defs>
+        <line x1="15" y1="57" x2="55" y2="57" stroke="#4af0a0" stroke-width="2" marker-end="url(#c1)"/>
+        <circle cx="57" cy="57" r="4" fill="#4af0a0"/>
+        <line x1="57" y1="57" x2="57" y2="20" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="57" y1="57" x2="57" y2="40" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="57" y1="57" x2="57" y2="74" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="57" y1="57" x2="57" y2="93" stroke="#4af0a0" stroke-width="1.5"/>
+        <rect x="70" y="8" width="110" height="24" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="125" y="24" fill="#6c8fff" font-size="12" text-anchor="middle" font-family="monospace">asignacion</text>
+        <rect x="70" y="34" width="110" height="24" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="125" y="50" fill="#6c8fff" font-size="12" text-anchor="middle" font-family="monospace">expresion</text>
+        <rect x="70" y="60" width="110" height="24" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="125" y="76" fill="#6c8fff" font-size="12" text-anchor="middle" font-family="monospace">return_stmt</text>
+        <rect x="70" y="86" width="110" height="24" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="125" y="102" fill="#4af0a0" font-size="12" text-anchor="middle" font-family="monospace">"pass"</text>
+        <line x1="180" y1="20" x2="415" y2="20" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="180" y1="46" x2="415" y2="46" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="180" y1="72" x2="415" y2="72" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="180" y1="98" x2="415" y2="98" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="415" y1="20" x2="415" y2="98" stroke="#4af0a0" stroke-width="1.5"/>
+        <line x1="415" y1="57" x2="455" y2="57" stroke="#4af0a0" stroke-width="2" marker-end="url(#c1)"/>
+      </svg>
+    </div>
+    <div class="conway-box">
+      <div class="conway-lbl">if_stmt</div>
+      <svg viewBox="0 0 650 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:650px">
+        <defs><marker id="c2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4af0a0"/></marker></defs>
+        <line x1="5" y1="37" x2="28" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <rect x="30" y="23" width="40" height="28" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="50" y="41" fill="#4af0a0" font-size="11" text-anchor="middle" font-family="monospace">"if"</text>
+        <line x1="70" y1="37" x2="88" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <rect x="90" y="23" width="78" height="28" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="129" y="41" fill="#6c8fff" font-size="11" text-anchor="middle" font-family="monospace">expresion</text>
+        <line x1="168" y1="37" x2="185" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <rect x="187" y="23" width="30" height="28" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="202" y="41" fill="#4af0a0" font-size="11" text-anchor="middle" font-family="monospace">":"</text>
+        <line x1="217" y1="37" x2="233" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <rect x="235" y="23" width="58" height="28" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="264" y="41" fill="#6c8fff" font-size="11" text-anchor="middle" font-family="monospace">bloque</text>
+        <line x1="293" y1="37" x2="310" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <rect x="312" y="23" width="55" height="28" rx="5" fill="#1a1f2b" stroke="#ffd166" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="339" y="41" fill="#ffd166" font-size="10" text-anchor="middle" font-family="monospace">elif…</text>
+        <line x1="367" y1="37" x2="383" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <rect x="385" y="23" width="55" height="28" rx="5" fill="#1a1f2b" stroke="#ffd166" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="412" y="41" fill="#ffd166" font-size="10" text-anchor="middle" font-family="monospace">else…</text>
+        <line x1="440" y1="37" x2="620" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c2)"/>
+        <text x="530" y="30" fill="#7a8299" font-size="9" font-family="monospace">( opcionales )</text>
+      </svg>
+    </div>
+    <div class="conway-box">
+      <div class="conway-lbl">def_stmt</div>
+      <svg viewBox="0 0 720 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px">
+        <defs><marker id="c3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4af0a0"/></marker></defs>
+        <line x1="5" y1="37" x2="23" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="25" y="23" width="44" height="28" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="47" y="41" fill="#4af0a0" font-size="11" text-anchor="middle" font-family="monospace">"def"</text>
+        <line x1="69" y1="37" x2="84" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="86" y="23" width="72" height="28" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="122" y="41" fill="#6c8fff" font-size="11" text-anchor="middle" font-family="monospace">IDENTIFIER</text>
+        <line x1="158" y1="37" x2="173" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="175" y="23" width="26" height="28" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="188" y="41" fill="#4af0a0" font-size="11" text-anchor="middle" font-family="monospace">"("</text>
+        <line x1="201" y1="37" x2="216" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="218" y="23" width="54" height="28" rx="5" fill="#1a1f2b" stroke="#ffd166" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="245" y="41" fill="#ffd166" font-size="11" text-anchor="middle" font-family="monospace">params</text>
+        <line x1="272" y1="37" x2="287" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="289" y="23" width="26" height="28" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="302" y="41" fill="#4af0a0" font-size="11" text-anchor="middle" font-family="monospace">")"</text>
+        <line x1="315" y1="37" x2="330" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="332" y="23" width="54" height="28" rx="5" fill="#1a1f2b" stroke="#ffd166" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="359" y="41" fill="#ffd166" font-size="10" text-anchor="middle" font-family="monospace">→ expr</text>
+        <line x1="386" y1="37" x2="401" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="403" y="23" width="26" height="28" rx="5" fill="#1a1f2b" stroke="#4af0a0" stroke-width="1.5"/>
+        <text x="416" y="41" fill="#4af0a0" font-size="11" text-anchor="middle" font-family="monospace">":"</text>
+        <line x1="429" y1="37" x2="444" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+        <rect x="446" y="23" width="58" height="28" rx="5" fill="#1a1f2b" stroke="#6c8fff" stroke-width="1.5"/>
+        <text x="475" y="41" fill="#6c8fff" font-size="11" text-anchor="middle" font-family="monospace">bloque</text>
+        <line x1="504" y1="37" x2="700" y2="37" stroke="#4af0a0" stroke-width="2" marker-end="url(#c3)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- VII -->
+  <div class="docs-sec" id="ds7">
+    <h2 class="docs-h2"><span class="docs-badge">VII</span>Conjuntos PRIMERO / SIGUIENTE y Análisis LL(1)</h2>
+    <h3 class="docs-h3">Conjuntos PRIMERO y SIGUIENTE</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>No Terminal</th><th>PRIMERO</th><th>SIGUIENTE</th></tr></thead>
+      <tbody>
+        <tr><td>programa</td><td>"def" "if" "while" "for" "class" "return" IDENTIFIER "pass"</td><td>$</td></tr>
+        <tr><td>sentencia</td><td>"def" "if" "while" "for" "class" "return" IDENTIFIER "pass"</td><td>DEDENT $ NEWLINE</td></tr>
+        <tr><td>sentencia_simple</td><td>IDENTIFIER "return" "pass" "import"</td><td>NEWLINE</td></tr>
+        <tr><td>sentencia_comp</td><td>"def" "if" "while" "for" "class"</td><td>DEDENT $ NEWLINE</td></tr>
+        <tr><td>asignacion</td><td>IDENTIFIER</td><td>NEWLINE</td></tr>
+        <tr><td>expresion</td><td>"not" "+" "-" IDENTIFIER INTEGER FLOAT STRING "True" "False" "None" "("</td><td>NEWLINE ":" ")" "]" "," $</td></tr>
+        <tr><td>expr_add</td><td>"+" "-" IDENTIFIER INTEGER FLOAT STRING "("</td><td>"==" "!=" "&lt;" "&gt;" "&lt;=" "&gt;=" "and" "or" NEWLINE</td></tr>
+        <tr><td>bloque</td><td>NEWLINE</td><td>"elif" "else" "except" DEDENT $</td></tr>
+        <tr><td>if_stmt</td><td>"if"</td><td>DEDENT $ NEWLINE</td></tr>
+        <tr><td>for_stmt</td><td>"for"</td><td>DEDENT $ NEWLINE</td></tr>
+        <tr><td>def_stmt</td><td>"def"</td><td>DEDENT $ NEWLINE</td></tr>
+        <tr><td>params</td><td>IDENTIFIER "*" "**"</td><td>")"</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">Tabla de Análisis LL(1)</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>No Terminal</th><th>"def"</th><th>"if"</th><th>"for"</th><th>IDENTIFIER</th><th>INTEGER</th><th>"return"</th></tr></thead>
+      <tbody>
+        <tr><td>programa</td><td>P1: sent+</td><td>P1: sent+</td><td>P1: sent+</td><td>P1: sent+</td><td>—</td><td>P1: sent+</td></tr>
+        <tr><td>sentencia</td><td>→ comp</td><td>→ comp</td><td>→ comp</td><td>→ simple</td><td>—</td><td>→ simple</td></tr>
+        <tr><td>sentencia_simple</td><td>—</td><td>—</td><td>—</td><td>→ asig|expr</td><td>—</td><td>→ return</td></tr>
+        <tr><td>sentencia_comp</td><td>→ def_stmt</td><td>→ if_stmt</td><td>→ for_stmt</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>if_stmt</td><td>—</td><td>if expr: blk</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>def_stmt</td><td>def ID(…)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>for_stmt</td><td>—</td><td>—</td><td>for t in e</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">Análisis LL(1) Completo — Sentencia <span class="dc">total = 0</span></h3>
+    <p class="dp">Tokens: IDENTIFIER("total") &nbsp; OP_ASSIGN("=") &nbsp; INTEGER("0") &nbsp; NEWLINE</p>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Paso</th><th>Pila (tope →)</th><th>Token actual</th><th>Acción</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>sentencia_simple $</td><td>IDENTIFIER(total)</td><td>M[sentencia_simple, ID] → asignacion</td></tr>
+        <tr><td>2</td><td>asignacion $</td><td>IDENTIFIER(total)</td><td>asignacion → target "=" expresion</td></tr>
+        <tr><td>3</td><td>target "=" expresion $</td><td>IDENTIFIER(total)</td><td>target → IDENTIFIER</td></tr>
+        <tr><td>4</td><td>IDENTIFIER "=" expresion $</td><td>IDENTIFIER(total)</td><td>Empareja IDENTIFIER, avanza</td></tr>
+        <tr><td>5</td><td>"=" expresion $</td><td>OP_ASSIGN(=)</td><td>Empareja "=", avanza</td></tr>
+        <tr><td>6</td><td>expresion $</td><td>INTEGER(0)</td><td>expresion → expr_or → … → expr_primaria</td></tr>
+        <tr><td>7</td><td>expr_primaria $</td><td>INTEGER(0)</td><td>expr_primaria → INTEGER</td></tr>
+        <tr><td>8</td><td>INTEGER $</td><td>INTEGER(0)</td><td>Empareja INTEGER(0), avanza</td></tr>
+        <tr><td>9</td><td>$</td><td>NEWLINE</td><td class="ok">✓ ACEPTAR</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- VIII -->
+  <div class="docs-sec" id="ds8">
+    <h2 class="docs-h2"><span class="docs-badge">VIII</span>Simulación de Software</h2>
+    <h3 class="docs-h3">Descripción General</h3>
+    <p class="dp">Compilador interactivo de Python implementado enteramente en el navegador (HTML5 + JavaScript puro). Permite cargar o escribir código Python y ejecutar las fases de análisis léxico y sintáctico con visualización completa.</p>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Componente</th><th>Tecnología</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td>Editor</td><td>CodeMirror 5 (CDN)</td><td>Área de ingreso con resaltado Python, números de línea, marcado de errores</td></tr>
+        <tr><td>Árbol sintáctico</td><td>D3.js v7 (CDN)</td><td>Renderizado del árbol de parse jerárquico e interactivo</td></tr>
+        <tr><td>Compilador</td><td>JavaScript ES6+</td><td>Analizador léxico, sintáctico LL(1), tabla de símbolos, control de errores</td></tr>
+        <tr><td>Estilos</td><td>CSS custom (dark theme)</td><td>Interfaz oscura con paleta semántica por tipo de token</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="docs-h3">Módulos del Analizador Léxico</h3>
+    <ul class="dl">
+      <li><strong>tokenize(sourceCode)</strong> — Itera carácter por carácter aplicando la máquina discriminadora. Retorna <span class="dc">{type, value, line, col}</span>.</li>
+      <li><strong>buildSymbolTable(tokens)</strong> — Extrae todos los IDENTIFIER y los clasifica como variable, función, parámetro o clase según el contexto.</li>
+      <li><strong>detectIndentation(lines)</strong> — Mantiene una pila de niveles de indentación; emite INDENT o DEDENT comparando con el nivel anterior.</li>
+      <li><strong>Control de errores léxicos</strong> — Caracteres no reconocidos generan error con tipo, descripción y número de línea. Análisis continúa para reportar todos los errores en una pasada.</li>
+    </ul>
+    <h3 class="docs-h3">Módulos del Analizador Sintáctico</h3>
+    <ul class="dl">
+      <li><strong>parse(tokens)</strong> — Analizador descendente recursivo predictivo LL(1). Inicia desde el símbolo inicial programa y retorna el AST como JSON anidado.</li>
+      <li><strong>parseStatement()</strong> — Inspecciona el token lookahead y redirige a parseIf(), parseWhile(), parseFor(), parseDef(), etc.</li>
+      <li><strong>parseExpression()</strong> — Descenso recursivo siguiendo la jerarquía de precedencia de operadores.</li>
+      <li><strong>renderTree(node, container)</strong> — Usa D3.js d3.hierarchy() y d3.tree() para el layout. Nodos coloreados por tipo.</li>
+      <li><strong>Control de errores sintácticos</strong> — Ante token inesperado: SyntaxError con token encontrado, esperado y línea. La línea se marca en rojo en el editor.</li>
+    </ul>
+    <h3 class="docs-h3">Control de Errores</h3>
+    <div class="dtw"><table class="dt">
+      <thead><tr><th>Tipo</th><th>Indicador</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--accent3)">Error Léxico</td><td>Fondo rojo</td><td>[LÉXICO] Línea 3, Col 7: Carácter no reconocido "$".</td></tr>
+        <tr><td style="color:var(--accent4)">Error Sintáctico</td><td>Fondo amarillo</td><td>[SINTÁCTICO] Línea 5: Se esperaba ":" pero se encontró IDENTIFIER.</td></tr>
+        <tr><td style="color:var(--accent)">Éxito</td><td>Borde verde</td><td>Análisis completado: 47 tokens, 3 identificadores, 0 errores.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- IX -->
+  <div class="docs-sec" id="ds9">
+    <h2 class="docs-h2"><span class="docs-badge">IX</span>Referencias</h2>
+    <ul class="dl">
+      <li>Aho, A. V., Lam, M. S., Sethi, R., &amp; Ullman, J. D. (2007). <em>Compilers: Principles, Techniques, and Tools</em> (2nd ed.). Pearson Education.</li>
+      <li>Python Software Foundation. (2024). <em>The Python Language Reference (Python 3.12).</em> https://docs.python.org/3/reference/</li>
+      <li>Python Software Foundation. (2024). <em>Tokenize — Tokenizer for Python source.</em> https://docs.python.org/3/library/tokenize.html</li>
+      <li>Grune, D., &amp; Jacobs, C. J. H. (2008). <em>Parsing Techniques: A Practical Guide</em> (2nd ed.). Springer.</li>
+      <li>Louden, K. C. (1997). <em>Compiler Construction: Principles and Practice.</em> PWS Publishing.</li>
+      <li>Nystrom, R. (2021). <em>Crafting Interpreters.</em> https://craftinginterpreters.com/</li>
+    </ul>
+  </div>
+
+  <!-- X -->
+  <div class="docs-sec" id="ds9">
+    <h2 class="docs-h2"><span class="docs-badge">X</span>Evidencias y Entregables</h2>
+    <h3 class="docs-h3">Google Drive y Git Hub</h3>
+    <ul class="dl">
+      <li>https://drive.google.com/drive/folders/1b2Q4PxJNAqxS-RSEpbicmSk29N6gtqOr?usp=sharing</li>
+      <li>https://github.com/KimJCC/compilador-python.git</li>
+    </ul>
+  </div>
+
+</div>`;
+
 loadExample();
 document.getElementById('line-badge').textContent = `${cm.lineCount()} líneas`;
 </script>
